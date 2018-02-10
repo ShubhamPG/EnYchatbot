@@ -88,7 +88,7 @@ def get_QnA_Keyboard(field):
     returnList = []
     global status
     (chatID,fieldID,ques,ans) = readExcel()
-    for each in range(1,44):
+    for each in range(0,44):
         if qNa.getStatus() == "question":
             if fieldID[each] == field:
                 returnList.append(ques[each])
@@ -138,7 +138,7 @@ def build_keyboard(items):
 
 
 def handle_updates(updates):
-    listA = ["Login ","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support", "All FaQ"]
+    listA = ["Login ","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
     for update in updates["result"]:
         try:
             text = update["message"]["text"]
