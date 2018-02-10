@@ -34,7 +34,7 @@ def readExcel():
     return (chatID,fieldID,ques,ans)
     
 def create_field():
-    print(" INto create_field function ")
+    #print(" INto create_field function ")
     value_field = ["Login","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
 
     connectn = sqlite3.connect("FaQ.sqlite")
@@ -51,7 +51,7 @@ def create_field():
         connectn.commit()    
 
 def create_FnQ():
-    print("Into create_FnQ function ")
+    #print("Into create_FnQ function ")
     
     connectn = sqlite3.connect("QnA.sqlite")
     cursr = connectn.cursor()
@@ -75,24 +75,27 @@ def get_Field_Keyboard():
     return [x[0] for x in connectn.execute(stmt)]
 
 def get_QnA_Keyboard(field):
-    connectn = sqlite3.connect("QnA.sqlite")
-    crsr = connectn.cursor()
+    #connectn = sqlite3.connect("QnA.sqlite")
+    #crsr = connectn.cursor()
     
-    if qNa.getStatus == "question":
-        stmt = "SELECT question FROM QnA WHERE field = ?"
-        crsr.execute(stmt,(field,))
-        crsr.execute(stmt,args)        
-    elif qNa.getStatus == "answer":
-        stmt = "SELECT answer FROM QnA WHERE question = ?"
-        crsr.execute(stmt,(field,))
-        crsr.execute(stmt,args)
-        
-    # args = (field,)
+    #stmt = "SELECT question FROM QnA WHERE field = ?"
+    #args = (field,)
     
-    # crsr.execute(stmt,args)
-	
+    #crsr.execute(stmt,args)
     #print(crsr.fetchall())
-    return [x[0] for x in connectn.execute(stmt,args)]
+    #return [x[0] for x in connectn.execute(stmt,args)]
+	
+    returnList = []
+    global status
+    (chatID,fieldID,ques,ans) = readExcel()
+    for each in range(1,44):
+        if qNa.getStatus() == "question":
+            if fieldID[each] == field:
+                returnList.append(ques[each])
+        elif qNa.getStatus() == "answer":
+            if ques[each] == field:
+                returnList.append(ans[each])      
+    return returnList
 	
 ##----------------------    Remove and put this code into module ----------------
 
@@ -141,12 +144,14 @@ def handle_updates(updates):
             text = update["message"]["text"]
             chat = update["message"]["chat"]["id"]
             if text == "/continue":
-                keyboardA = build_keyboard(get_Field_Keyboard())
+                keyboardA = build_keyboard(listA)
                 send_message("Please choose a field", chat, keyboardA)
                 qNa.setStatus("question")
             elif ( text == "/start" or "hi" == text.lower()):
                 send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
+                #db.add_owner(chat)
                 keyboard = build_keyboard(listA)
+                #print(" Sab chalta hai ")
                 send_message("Please choose a field", chat, keyboard)
                 qNa.setStatus("question")
             elif text.startswith("/"):
@@ -158,7 +163,7 @@ def handle_updates(updates):
                 qNa.setStatus("answer")
             elif qNa.getStatus() == "answer" :
                 answer = get_QnA_Keyboard(text)
-                print("In answer = " %answer)
+                print(answer)
                 send_message(answer,chat)
                 qNa.setStatus("text")
                 send_message("select /continue to check more FaQ ", chat)
@@ -175,8 +180,6 @@ def send_message(text, chat_id, reply_markup=None):
 def main():
     last_update_id = None
     qNa.setStatus("text")
-    create_field()
-    create_FnQ()
     while True:
         updates = get_updates(last_update_id)
         if len(updates["result"]) > 0:
