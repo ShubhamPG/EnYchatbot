@@ -166,6 +166,7 @@ def handle_updates(updates):
                 print(answer)
                 send_message(answer,chat)
                 qNa.setStatus("text")
+                time.sleep(3.0)
                 send_message("select /continue to check more FaQ ", chat)
         except KeyError:
             pass
