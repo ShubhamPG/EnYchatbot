@@ -2,63 +2,54 @@ import sqlite3
 import pandas as pd 
 
 class QnAStatus():
+    
     def __init__(self,status):
         self.status = status
+        self.connectn_QnA = sqlite3.connect("QnA.sqlite")
         
-    def setStatus(self,status):
+    def setStatus(self,status,chat):
         self.status = status
     
-    def getStatus(self):
+    def getStatus(self,chat):
         return self.status
     
     def readExcel():
         df = pd.read_excel("FaQSheet.xlsx")
         
-        chatID = df["chatID"].values
         fieldID = df["Field"].values
         ques = df["Question"].values
         ans = df["Answers"].values
         
-        return (chatID,fieldID,ques,ans)
+        return (fieldID,ques,ans)
     
-    def create_field():
-        #print(" INto create_field function ")
-        value_field = ["Login","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
-    
-        connectn = sqlite3.connect("FaQ.sqlite")
-        cursr = connectn.cursor()
-    
-    
-        cursr.execute("CREATE TABLE IF NOT EXISTS FaQ(chatID INTEGER , field TEXT )")
-        connectn.commit()
-    
-        stmt = ("INSERT INTO FaQ (field) VALUES(?)")
-    
-        for each in value_field:
-            cursr.execute(stmt,(each,))
-            connectn.commit()    
-    
-    def create_FnQ():
-        #print("Into create_FnQ function ")
+    def create_QnA(self,chat_id):
+        print("Into create_QnA function ")
         
-        connectn = sqlite3.connect("QnA.sqlite")
-        cursr = connectn.cursor()
+        self.connectn_QnA = sqlite3.connect("QnA.sqlite")
+        self.connectn_QnA.execute("CREATE TABLE IF NOT EXISTS QnA(chatID INTEGER , field TEXT , question TEXT , answer TEXT , status TEXT)")
         
-        cursr.execute("CREATE TABLE IF NOT EXISTS QnA(chatID INTEGER , field TEXT , question TEXT , answer TEXT )")
-        connectn.commit()
-        
-        (chatID,fieldID,ques,ans) = readExcel()
+        (fieldID,ques,ans) = QnAStatus.readExcel()
         
         for each in range(0,44):
-            stmt = ("INSERT INTO QnA (chatID,field,question,answer) VALUES(?,?,?,?)")
-            args = (chatID[each],fieldID[each],ques[each],ans[each])
+            stmt = ("INSERT INTO QnA (chatID,field,question,answer,status) VALUES(?,?,?,?,?)")
+            args = (chat_id,fieldID[each],ques[each],ans[each],"text")
             
-            cursr.execute(stmt,args)
-            connectn.commit()
+            self.connectn_QnA.execute(stmt,args)
+            self.connectn_QnA.commit()
     
-    def get_Field_Keyboard():
-        connectn = sqlite3.connect("FaQ.sqlite")
-    
+    def get_Field_Keyboard(self,chat_id):
         
-        stmt = "SELECT field FROM FaQ "
-        return [x[0] for x in connectn.execute(stmt)]
+        stmt = "SELECT DISTINCT field FROM QnA WHERE chatID = chat_id "
+        return [x[0] for x in self.connectn_field.execute(stmt)]
+    
+    def get_QnA_Keyboard(self,field,chat_id):
+        connectn = sqlite3.connect("QnA.sqlite")
+        crsr = connectn.cursor()
+        
+        stmt = "SELECT question FROM QnA WHERE chatID=chat_id AND field = ?"
+        args = (field,)
+        
+        crsr.execute(stmt,args)
+        print(crsr.fetchall())
+        return [x[0] for x in connectn.execute(stmt,args)]
+        
