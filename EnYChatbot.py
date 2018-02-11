@@ -1,78 +1,39 @@
 import json 
 import requests
 import time 
-#from urllib import quote_plus
+#import urllib
+import nltk
+from status import QnAStatus
+
+#print("start")
+#nltk.download("punkt")
+#nltk.download("stopwords")
+#print("finish")
 
 TOKEN = "544315494:AAGQ7Oj4gKURC54F_6MdFjQoOW-gZgKNMsk"
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
+##-----------------------------------
+            #create query formation 
+##-----------------------------------
+useless_words = nltk.corpus.stopwords.words("english")
+start_words = ["who", "what", "when", "where", "why", "how", "is", "can", "does", "do" , "i" , "?"]
+def build_bag_of_words_features_filtered(question):
+    question = question.lower()
+    token_words = nltk.word_tokenize(question)
+    print(token_words)
+    token_words = [word for word in token_words if not word in useless_words]
+    print(token_words)
+    token_words = [word for word in token_words if not word in start_words]
+    print(token_words)
+    return token_words
+
+#build_bag_of_words_features_filtered(ques[0]))
+
+##-----------------------------------
+
 ##----------------------    Remove and put this code into module ----------------
-
-import sqlite3
-import pandas as pd 
-
-class QnAStatus():
-    def __init__(self,status):
-        self.status = status
-        
-    def setStatus(self,status):
-        self.status = status
-    
-    def getStatus(self):
-        return self.status
-
 qNa = QnAStatus("text")
-
-def readExcel():
-    df = pd.read_excel("FaQSheet.xlsx")
-    
-    chatID = df["chatID"].values
-    fieldID = df["Field"].values
-    ques = df["Question"].values
-    ans = df["Answers"].values
-    
-    return (chatID,fieldID,ques,ans)
-    
-def create_field():
-    #print(" INto create_field function ")
-    value_field = ["Login","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
-
-    connectn = sqlite3.connect("FaQ.sqlite")
-    cursr = connectn.cursor()
-
-
-    cursr.execute("CREATE TABLE IF NOT EXISTS FaQ(chatID INTEGER , field TEXT )")
-    connectn.commit()
-
-    stmt = ("INSERT INTO FaQ (field) VALUES(?)")
-
-    for each in value_field:
-        cursr.execute(stmt,(each,))
-        connectn.commit()    
-
-def create_FnQ():
-    #print("Into create_FnQ function ")
-    
-    connectn = sqlite3.connect("QnA.sqlite")
-    cursr = connectn.cursor()
-    
-    cursr.execute("CREATE TABLE IF NOT EXISTS QnA(chatID INTEGER , field TEXT , question TEXT , answer TEXT )")
-    connectn.commit()
-    
-    (chatID,fieldID,ques,ans) = readExcel()
-    for each in range(1,44):
-        stmt = ("INSERT INTO QnA (chatID,field,question,answer) VALUES(?,?,?,?)")
-        args = (chatID[each],fieldID[each],ques[each],ans[each])
-        
-        cursr.execute(stmt,args)
-        connectn.commit()
-
-def get_Field_Keyboard():
-    connectn = sqlite3.connect("FaQ.sqlite")
-
-    
-    stmt = "SELECT field FROM FaQ "
-    return [x[0] for x in connectn.execute(stmt)]
 
 def get_QnA_Keyboard(field):
     #connectn = sqlite3.connect("QnA.sqlite")
@@ -87,7 +48,7 @@ def get_QnA_Keyboard(field):
 	
     returnList = []
     global status
-    (chatID,fieldID,ques,ans) = readExcel()
+    (chatID,fieldID,ques,ans) = QnAStatus.readExcel()
     for each in range(0,44):
         if qNa.getStatus() == "question":
             if fieldID[each] == field:
@@ -136,43 +97,46 @@ def build_keyboard(items):
     reply_markup = {"keyboard":keyboard, "one_time_keyboard": True}
     return json.dumps(reply_markup)
 
+def handle_update(update):
+    listA = ["Login ","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
+    try:
+        text = update["message"]["text"]
+        chat = update["message"]["chat"]["id"]
+        if text == "/continue":
+            keyboardA = build_keyboard(listA)
+            send_message("Please choose a field", chat, keyboardA)
+            qNa.setStatus("question")
+        elif ( text == "/start" or "hi" == text.lower()):
+            send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
+            #db.add_owner(chat)
+            keyboard = build_keyboard(listA)
+            #print(" Sab chalta hai ")
+            send_message("Please choose a field", chat, keyboard)
+            qNa.setStatus("question")
+        elif text.startswith("/"):
+            return
+        elif  qNa.getStatus() == "question":
+            question = get_QnA_Keyboard(text)
+            keyboardQ = build_keyboard(question)
+            send_message("Pick your question ",chat, keyboardQ)
+            qNa.setStatus("answer")
+        elif qNa.getStatus() == "answer" :
+            #build_bag_of_words_features_filtered(text)
+            answer = get_QnA_Keyboard(text)
+            print(answer)
+            send_message(answer,chat)
+            qNa.setStatus("text")
+            time.sleep(0.5)
+            send_message("select /continue to check more FaQ ", chat)
+    except KeyError:
+        pass
 
 def handle_updates(updates):
-    listA = ["Login ","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
     for update in updates["result"]:
-        try:
-            text = update["message"]["text"]
-            chat = update["message"]["chat"]["id"]
-            if text == "/continue":
-                keyboardA = build_keyboard(listA)
-                send_message("Please choose a field", chat, keyboardA)
-                qNa.setStatus("question")
-            elif ( text == "/start" or "hi" == text.lower()):
-                send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
-                #db.add_owner(chat)
-                keyboard = build_keyboard(listA)
-                #print(" Sab chalta hai ")
-                send_message("Please choose a field", chat, keyboard)
-                qNa.setStatus("question")
-            elif text.startswith("/"):
-                continue
-            elif  qNa.getStatus() == "question":
-                question = get_QnA_Keyboard(text)
-                keyboardQ = build_keyboard(question)
-                send_message("Pick your question ",chat, keyboardQ)
-                qNa.setStatus("answer")
-            elif qNa.getStatus() == "answer" :
-                answer = get_QnA_Keyboard(text)
-                print(answer)
-                send_message(answer,chat)
-                qNa.setStatus("text")
-                time.sleep(3.0)
-                send_message("select /continue to check more FaQ ", chat)
-        except KeyError:
-            pass
+        handle_update(update)
 
 def send_message(text, chat_id, reply_markup=None):
-    #text = quote_plus(text)
+    #text = urllib.parse.quote(text)
     url = URL + "sendMessage?text={}&chat_id={}&parse_mode=Markdown".format(text, chat_id)
     if reply_markup:
         url += "&reply_markup={}".format(reply_markup)
