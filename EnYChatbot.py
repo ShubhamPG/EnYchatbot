@@ -50,14 +50,16 @@ def get_QnA_Keyboard(field,chat):
 	
     returnList = []
     global status
-    (fieldID,ques,ans) = QnAStatus.readExcel()
-    for each in range(0,44):
-        if qNa.getStatus(chat) == "question":
+    (fieldID,ques,ans) = qNa.readExcel()
+    if qNa.getStatus(chat) == "question":
+        for each in range(0,44):
             if fieldID[each] == field:
                 returnList.append(ques[each])
-        elif qNa.getStatus(chat) == "answer":
+    elif qNa.getStatus(chat) == "answer":
+        for each in range(0,44):
             if ques[each] == field:
-                returnList.append(ans[each])      
+                returnList.append(ans[each]) 
+                break
     return returnList
 	
 ##----------------------    Remove and put this code into module ----------------
@@ -133,7 +135,7 @@ def handle_update(update):
             answer = get_QnA_Keyboard(text,chat)
             send_message(answer,chat)
             qNa.setStatus("text",chat)
-            time.sleep(0.5)
+            #time.sleep(0.5)
             send_message("select /continue to check more FaQ ", chat)
     except KeyError:
         pass

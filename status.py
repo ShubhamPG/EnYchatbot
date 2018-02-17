@@ -6,6 +6,10 @@ class QnAStatus():
     def __init__(self,status):
         self.connectn_QnA = sqlite3.connect("QnA.sqlite")
         self.connectn_Status = sqlite3.connect("status.sqlite")
+        df = pd.read_excel("FaQSheet.xlsx")
+        self.fieldID = df["Field"].values
+        self.ques = df["Question"].values
+        self.ans = df["Answers"].values
         
     def createTable(self):
         self.connectn_Status.execute("CREATE TABLE IF NOT EXISTS status(chatID INTEGER , status TEXT)")
@@ -29,14 +33,8 @@ class QnAStatus():
         for x in self.connectn_Status.execute(stmt, args):
             return x[0]
     
-    def readExcel():
-        df = pd.read_excel("FaQSheet.xlsx")
-        
-        fieldID = df["Field"].values
-        ques = df["Question"].values
-        ans = df["Answers"].values
-        
-        return (fieldID,ques,ans)
+    def readExcel(self):        
+        return (self.fieldID,self.ques,self.ans)
     
     def create_QnA(self,chat_id):
         print("Into create_QnA function ")
