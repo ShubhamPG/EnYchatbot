@@ -104,7 +104,7 @@ def create_query_table(chatID):
         return
     else :
         chatID_list.append(chatID)
-        qNa.create_QnA(chatID)
+        qNa.updateStatustable("text",chatID)
     
 def handle_update(update):
     listA = ["Login ","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
@@ -123,7 +123,7 @@ def handle_update(update):
             qNa.setStatus("question",chat)
         elif text.startswith("/"):
             return
-        elif  qNa.getStatus(chat) == "question":
+        elif qNa.getStatus(chat) == "question":
             question = get_QnA_Keyboard(text,chat)
             keyboardQ = build_keyboard(question)
             send_message("Pick your question ",chat, keyboardQ)
@@ -131,7 +131,6 @@ def handle_update(update):
         elif qNa.getStatus(chat) == "answer" :
             #build_bag_of_words_features_filtered(text)
             answer = get_QnA_Keyboard(text,chat)
-            print(answer)
             send_message(answer,chat)
             qNa.setStatus("text",chat)
             time.sleep(0.5)
@@ -152,12 +151,13 @@ def send_message(text, chat_id, reply_markup=None):
     
 def main():
     last_update_id = None
+    qNa.createTable()
     while True:
         updates = get_updates(last_update_id)
         if len(updates["result"]) > 0:
             last_update_id = get_last_update_id(updates) + 1
             handle_updates(updates)
-        time.sleep(0.5)
+        time.sleep(0.1)
     
 
 if __name__ == '__main__':

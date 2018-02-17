@@ -4,14 +4,30 @@ import pandas as pd
 class QnAStatus():
     
     def __init__(self,status):
-        self.status = status
         self.connectn_QnA = sqlite3.connect("QnA.sqlite")
+        self.connectn_Status = sqlite3.connect("status.sqlite")
         
+    def createTable(self):
+        self.connectn_Status.execute("CREATE TABLE IF NOT EXISTS status(chatID INTEGER , status TEXT)")
+        self.connectn_Status.commit()
+         
+    def updateStatustable(self,status,chat):
+        stmt = (" INSERT INTO status ( status , chatID) VALUES(?,?)")
+        args = (status,chat)
+        self.connectn_Status.execute(stmt,args)
+        self.connectn_Status.commit()
+    
     def setStatus(self,status,chat):
-        self.status = status
+        stmt = ("UPDATE status set status = ? WHERE chatID = ? ")
+        args = (status,chat)
+        self.connectn_Status.execute(stmt,args)
+        self.connectn_Status.commit()
     
     def getStatus(self,chat):
-        return self.status
+        stmt = "SELECT status FROM status WHERE chatID = ? "
+        args = (chat,)
+        for x in self.connectn_Status.execute(stmt, args):
+            return x[0]
     
     def readExcel():
         df = pd.read_excel("FaQSheet.xlsx")
@@ -25,7 +41,6 @@ class QnAStatus():
     def create_QnA(self,chat_id):
         print("Into create_QnA function ")
         
-        self.connectn_QnA = sqlite3.connect("QnA.sqlite")
         self.connectn_QnA.execute("CREATE TABLE IF NOT EXISTS QnA(chatID INTEGER , field TEXT , question TEXT , answer TEXT , status TEXT)")
         
         (fieldID,ques,ans) = QnAStatus.readExcel()
