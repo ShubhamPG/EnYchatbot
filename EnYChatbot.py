@@ -6,8 +6,8 @@ import nltk
 from status import QnAStatus
 
 #print("start")
-#nltk.download("punkt")
-#nltk.download("stopwords")
+nltk.download("punkt")
+nltk.download("stopwords")
 #print("finish")
 
 TOKEN = "544315494:AAGQ7Oj4gKURC54F_6MdFjQoOW-gZgKNMsk"
