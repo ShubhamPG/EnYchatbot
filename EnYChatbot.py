@@ -6,7 +6,7 @@ import nltk
 from status import QnAStatus
 
 #print("start")
-nltk.download("punkt")
+#nltk.download("punkt")
 nltk.download("stopwords")
 #print("finish")
 
@@ -66,12 +66,17 @@ def get_QnA_Keyboard(field,chat):
 
 def get_url(url):
     response = requests.get(url)
-    content = response.content.decode("utf8")
+    content = response.content.decode("utf8").replace('\0', '')
     return content
 
 
 def get_json_from_url(url):
     content = get_url(url)
+    print("In function get_json_from_url")
+    if content == "None":
+        print("content is none")
+    else :
+        print("content is OKK")
     js = json.loads(content)
     return js
 

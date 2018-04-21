@@ -4,9 +4,9 @@ import pandas as pd
 class QnAStatus():
     
     def __init__(self,status):
-        self.connectn_QnA = sqlite3.connect("QnA.sqlite")
-        self.connectn_Status = sqlite3.connect("status.sqlite")
-        df = pd.read_excel("FaQSheet.xlsx")
+        self.connectn_QnA = sqlite3.connect("/var/www/part3/QnA.sqlite", check_same_thread = False)
+        self.connectn_Status = sqlite3.connect("/var/www/part3/status.sqlite", check_same_thread = False)
+        df = pd.read_excel("/var/www/part3/FaQSheet.xlsx")
         self.fieldID = df["Field"].values
         self.ques = df["Question"].values
         self.ans = df["Answers"].values
