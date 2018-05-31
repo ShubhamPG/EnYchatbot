@@ -52,11 +52,11 @@ def get_QnA_Keyboard(field,chat):
     global status
     (fieldID,ques,ans) = qNa.readExcel()
     if qNa.getStatus(chat) == "question":
-        for each in range(0,44):
+        for each in range(0,60):
             if fieldID[each] == field:
                 returnList.append(ques[each])
     elif qNa.getStatus(chat) == "answer":
-        for each in range(0,44):
+        for each in range(0,60):
             if ques[each] == field:
                 returnList.append(ans[each]) 
                 break
@@ -114,7 +114,27 @@ def create_query_table(chatID):
         qNa.updateStatustable("text",chatID)
     
 def handle_update(update):
-    listA = ["Login ","Viewing Compliance Tasks","User Roles","Submission of Compliances","Reports","Admin Tasks","Dashboard","Emails","Support"]
+    listA = [
+"Appointment of business partner",
+"Security deposit",
+"Discontinuance of business partner",
+"Performance evaluation",
+"Dealer appointment",
+"Dealer Registration",
+"Dealer discontinuance", 
+"Retailer appointment",
+"Registration",
+"Sample bags",
+"Registration form",
+"Depot Selection",
+"Performance Assessment",
+"Destination points, Destination & Freight",
+"Appointment of Handling agent",
+"Performance Evaluation of Handling agent",
+"Change of handling agent",
+"Stock Transfer Order ( STO )",
+"Physical Verification"
+]
     try:
         text = update["message"]["text"]
         chat = update["message"]["chat"]["id"]
