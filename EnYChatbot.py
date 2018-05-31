@@ -128,7 +128,7 @@ def handle_update(update):
 "Registration form",
 "Depot Selection",
 "Performance Assessment",
-"Destination points, Destination & Freight",
+"Destination points Destination and Freight",
 "Appointment of Handling agent",
 "Performance Evaluation of Handling agent",
 "Change of handling agent",
