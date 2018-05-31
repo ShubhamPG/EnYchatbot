@@ -8,7 +8,7 @@ class QnAStatus():
         self.connectn_Status = sqlite3.connect("/var/www/part3/status.sqlite", check_same_thread = False)
         df = pd.read_excel("/var/www/part3/FaQSheet.xlsx")
         self.fieldID = df["Field"].values
-        self.ques = df["Question"].values
+        self.ques = df["Questions"].values
         self.ans = df["Answers"].values
         
     def createTable(self):
