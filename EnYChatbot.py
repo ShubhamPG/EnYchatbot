@@ -13,6 +13,33 @@ nltk.download("stopwords")
 TOKEN = "544315494:AAGQ7Oj4gKURC54F_6MdFjQoOW-gZgKNMsk"
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
+##-----------------------------------------
+            #  Email function
+##-----------------------------------------
+def sendMail(chatID):
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+     
+     
+    fromaddr = "faqboteny@gmail.com"
+    toaddr = "faqboteny@gmail.com"
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Access approval for EnYBot"
+     
+    body = str(chatID)
+    msg.attach(MIMEText(body, 'plain'))
+     
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(fromaddr, "mizu@1234")
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
+
+##---------------------------------------
 
 ##-----------------------------------
             #create query formation 
@@ -112,7 +139,15 @@ def create_query_table(chatID):
     else :
         chatID_list.append(chatID)
         qNa.updateStatustable("text",chatID)
-    
+
+def isPermission(chatID):
+	#permissionID = qNa.getPermissionIDs()
+	if chatID == 468247330:#need to modify
+		return True
+	else:
+		return False
+		
+
 def handle_update(update):
     listA = [
 "Appointment of business partner",
@@ -139,36 +174,47 @@ def handle_update(update):
         text = update["message"]["text"]
         chat = update["message"]["chat"]["id"]
         create_query_table(chat)
-        if text == "/continue":
-            keyboardA = build_keyboard(listA)
-            send_message("Please choose a field", chat, keyboardA)
-            qNa.setStatus("question",chat)
-        elif ( text == "/start" or "hi" == text.lower()):
-            send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
-            keyboard = build_keyboard(listA)
-            send_message("Please choose a field", chat, keyboard)
-            qNa.setStatus("question",chat)
-        elif text.startswith("/"):
-            return
-        elif qNa.getStatus(chat) == "question":
-            question = get_QnA_Keyboard(text,chat)
-            keyboardQ = build_keyboard(question)
-            send_message("Pick your question ",chat, keyboardQ)
-            qNa.setStatus("answer",chat)
-        elif qNa.getStatus(chat) == "answer" :
-            #build_bag_of_words_features_filtered(text)
-            answer = get_QnA_Keyboard(text,chat)
-            send_message(answer,chat)
-            qNa.setStatus("text",chat)
-            #time.sleep(0.5)
-            send_message("select /continue to check more FaQ ", chat)
+        if ( isPermission(chat)):
+            if ( text == "/start" or "hi" == text.lower()):
+            	send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
+            	keyboard = build_keyboard(listA)
+            	send_message("Please choose a field", chat, keyboard)
+            	qNa.setStatus("question",chat)
+            elif text.startswith("/"):
+            	return			
+            elif text == "/continue":
+            	keyboardA = build_keyboard(listA)
+            	send_message("Please choose a field", chat, keyboardA)
+            	qNa.setStatus("question",chat)
+            elif qNa.getStatus(chat) == "question":
+            	question = get_QnA_Keyboard(text,chat)
+            	keyboardQ = build_keyboard(question)
+            	send_message("Pick your question ",chat, keyboardQ)
+            	send_message
+            	qNa.setStatus("answer",chat)
+            elif qNa.getStatus(chat) == "answer" :
+            	#build_bag_of_words_features_filtered(text)
+            	answer = get_QnA_Keyboard(text,chat)
+            	send_message(answer,chat)
+            	qNa.setStatus("text",chat)
+            	#time.sleep(0.5)
+            	send_message("select /continue to check more FaQ ", chat)
+        else:
+            if ( text == "/done"):
+                sendMail(chat)
+            elif ( text == "/start" or "hi" == text.lower()):
+                send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
+                send_message(" It seems you dont have acess permisions for this bot ", chat)
+                send_message("Please provide your name and email ID or other necessary information for Identity proof", chat)
+                send_message("type /done after above information is provided", chat)
+
     except KeyError:
         pass
 
 def handle_updates(updates):
     for update in updates["result"]:
         handle_update(update)
-  
+			
 def send_message(text, chat_id, reply_markup=None):
     #text = urllib.parse.quote(text)
     url = URL + "sendMessage?text={}&chat_id={}&parse_mode=Markdown".format(text, chat_id)
