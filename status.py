@@ -11,7 +11,7 @@ class QnAStatus():
         self.ques = df["Questions"].values
         self.ans = df["Answers"].values
         
-        df1 = pd.read_excel("permissionIDs.xlsx")
+        df1 = pd.read_excel("/var/www/part3/permissionIDs.xlsx")
         self.permissionID = df1["chatID"].values
         print(self.permissionID)
         
