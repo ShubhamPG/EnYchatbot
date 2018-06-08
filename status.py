@@ -11,6 +11,10 @@ class QnAStatus():
         self.ques = df["Questions"].values
         self.ans = df["Answers"].values
         
+        df1 = pd.read_excel("permissionIDs.xlsx")
+        self.permissionID = df1["chatID"].values
+        print(self.permissionID)
+        
     def createTable(self):
         self.connectn_Status.execute("CREATE TABLE IF NOT EXISTS status(chatID INTEGER , status TEXT)")
         self.connectn_Status.commit()
@@ -66,3 +70,5 @@ class QnAStatus():
         print(crsr.fetchall())
         return [x[0] for x in connectn.execute(stmt,args)]
         
+    def getPermissionIds(self):
+        return self.permissionID

@@ -13,6 +13,32 @@ nltk.download("stopwords")
 TOKEN = "544315494:AAGQ7Oj4gKURC54F_6MdFjQoOW-gZgKNMsk"
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
+##-----------------------------------
+            #Email module 
+##-----------------------------------
+def sendMail(chatID):
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+     
+     
+    fromaddr = "faqboteny@gmail.com"
+    toaddr = "faqboteny@gmail.com"
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Access approval for EnYBot"
+     
+    body = str(chatID)
+    msg.attach(MIMEText(body, 'plain'))
+     
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(fromaddr, "mizu@1234")
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
+
 
 ##-----------------------------------
             #create query formation 
@@ -113,6 +139,13 @@ def create_query_table(chatID):
         chatID_list.append(chatID)
         qNa.updateStatustable("text",chatID)
     
+def isPermission(chatID):
+    permissionIDs = qNa.getPermissionIds()
+    for each in permissionIDs:
+        if chatID == each:
+            return True
+    return False
+            
 def handle_update(update):
     listA = [
 "Appointment of business partner",
@@ -139,7 +172,15 @@ def handle_update(update):
         text = update["message"]["text"]
         chat = update["message"]["chat"]["id"]
         create_query_table(chat)
-        if text == "/continue":
+        
+        if(isPermission(chat) == False):
+            if ( text == "/start" or "hi" == text.lower()):
+                send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
+                send_message(" You Dont seems to have permission to Access this Bot  ", chat)
+                send_message(" Please share your contact details and press /done ", chat)
+            elif text == "/done":
+                sendMail(chat)
+        elif text == "/continue":
             keyboardA = build_keyboard(listA)
             send_message("Please choose a field", chat, keyboardA)
             qNa.setStatus("question",chat)
