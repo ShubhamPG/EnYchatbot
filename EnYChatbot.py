@@ -13,6 +13,8 @@ nltk.download("stopwords")
 TOKEN = "544315494:AAGQ7Oj4gKURC54F_6MdFjQoOW-gZgKNMsk"
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
+qNa = QnAStatus("text")
+
 ##-----------------------------------
             #Email module 
 ##-----------------------------------
@@ -28,8 +30,13 @@ def sendMail(chatID):
     msg['From'] = fromaddr
     msg['To'] = toaddr
     msg['Subject'] = "Access approval for EnYBot"
-     
-    body = str(chatID)
+    
+    requestMsg = " Hi Anup , Chirag , Shubham \n\n  \tBelow are the Excerpts from the user\n\t "
+    for each in qNa.getPermissionMsg(chatID):
+        requestMsg += str(each)+",\n\t"
+    requestMsg += "\n\n Regards,\n FaqBot"
+    
+    body = requestMsg #str(qNa.getPermissionMsg(chatID)) #str(chatID)
     msg.attach(MIMEText(body, 'plain'))
      
     server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -60,7 +67,7 @@ def build_bag_of_words_features_filtered(question):
 ##-----------------------------------
 
 ##----------------------    Remove and put this code into module ----------------
-qNa = QnAStatus("text")
+
 chatID_list = []
 
 def get_QnA_Keyboard(field,chat):
@@ -175,11 +182,14 @@ def handle_update(update):
         
         if(isPermission(chat) == False):
             if ( text == "/start" or "hi" == text.lower()):
+                qNa.clearPermissionTable(chat)
                 send_message(" Welcome to Frequently Asked Questions about compliance manager ", chat)
                 send_message(" You Dont seems to have permission to Access this Bot  ", chat)
                 send_message(" Please share your contact details and press /done ", chat)
             elif text == "/done":
                 sendMail(chat)
+            else:
+                qNa.permissionMsg(chat,text)
         elif text == "/continue":
             keyboardA = build_keyboard(listA)
             send_message("Please choose a field", chat, keyboardA)

@@ -39,21 +39,7 @@ class QnAStatus():
     
     def readExcel(self):        
         return (self.fieldID,self.ques,self.ans)
-    
-    def create_QnA(self,chat_id):
-        print("Into create_QnA function ")
         
-        self.connectn_QnA.execute("CREATE TABLE IF NOT EXISTS QnA(chatID INTEGER , field TEXT , question TEXT , answer TEXT , status TEXT)")
-        
-        (fieldID,ques,ans) = QnAStatus.readExcel()
-        
-        for each in range(0,44):
-            stmt = ("INSERT INTO QnA (chatID,field,question,answer,status) VALUES(?,?,?,?,?)")
-            args = (chat_id,fieldID[each],ques[each],ans[each],"text")
-            
-            self.connectn_QnA.execute(stmt,args)
-            self.connectn_QnA.commit()
-    
     def get_Field_Keyboard(self,chat_id):
         
         stmt = "SELECT DISTINCT field FROM QnA WHERE chatID = chat_id "
@@ -69,6 +55,30 @@ class QnAStatus():
         crsr.execute(stmt,args)
         print(crsr.fetchall())
         return [x[0] for x in connectn.execute(stmt,args)]
-        
+
+#-------------------------------------------------------
+                   #Permission Table code         
+#-------------------------------------------------------
+
     def getPermissionIds(self):
         return self.permissionID
+    
+    def permissionMsg(self,chat_id,msg):
+        print("Into create_QnA function ")
+        
+        self.connectn_QnA.execute("CREATE TABLE IF NOT EXISTS QnA(chatID INTEGER , msg TEXT)")
+
+        stmt = ("INSERT INTO QnA (chatID,msg) VALUES(?,?)")
+        args = (chat_id,msg)
+        
+        self.connectn_QnA.execute(stmt,args)
+        self.connectn_QnA.commit()
+    
+    def getPermissionMsg(self,chatID):
+        stmt = "SELECT msg FROM QnA WHERE chatID = chatID "
+        return [x[0] for x in self.connectn_QnA.execute(stmt)]
+        
+    def clearPermissionTable(self,chatID):
+        stmt = "DELETE FROM QnA WHERE chatID = chatID "
+        self.connectn_QnA.execute(stmt)
+        
