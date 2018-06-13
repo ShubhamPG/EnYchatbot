@@ -34,7 +34,8 @@ def sendMail(chatID):
     requestMsg = " Hi Anup , Chirag , Shubham \n\n  \tBelow are the Excerpts from the user\n\t "
     for each in qNa.getPermissionMsg(chatID):
         requestMsg += str(each)+",\n\t"
-    requestMsg += "\n\n Regards,\n FaqBot"
+    requestMsg += "ChatID = "+str(chatID)
+    requestMsg += " \n\n Regards,\n FaqBot"
     
     body = requestMsg #str(qNa.getPermissionMsg(chatID)) #str(chatID)
     msg.attach(MIMEText(body, 'plain'))
@@ -210,6 +211,7 @@ def handle_update(update):
             #build_bag_of_words_features_filtered(text)
             answer = get_QnA_Keyboard(text,chat)
             send_message(answer,chat)
+            #send_document(answer,chat)
             qNa.setStatus("text",chat)
             #time.sleep(0.5)
             send_message("select /continue to check more FaQ ", chat)
@@ -226,6 +228,18 @@ def send_message(text, chat_id, reply_markup=None):
     if reply_markup:
         url += "&reply_markup={}".format(reply_markup)
     get_url(url)
+   
+def send_document(text, chat_id, reply_markup=None):
+    #curl -F chat_id="468247330" -F document=@"C:\Users\shubham\Downloads\sampleDeploy\EnYchatbot\permissionIDs.xlsx" -F caption="Text Message with attachment" https://api.telegram.org/bot544315494:AAGQ7Oj4gKURC54F_6MdFjQoOW-gZgKNMsk/sendDocument
+    docName = decodeText2DocName(text)
+    url = URL + "sendDocument?document={}&chat_id={}&parse_mode=Markdown".format("BQADBQADcgAD3v4IVcjXRoL5NXCuAg", chat_id)
+    if reply_markup:
+        url += "&reply_markup={}".format(reply_markup)
+    get_url(url)
+    print(url)
+   
+def decodeText2DocName(text):
+    return "Template 1"
     
 def main():
     last_update_id = None
