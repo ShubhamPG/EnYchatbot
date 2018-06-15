@@ -53,14 +53,13 @@ def sendMail(chatID):
 ##-----------------------------------
 useless_words = nltk.corpus.stopwords.words("english")
 start_words = ["who", "what", "when", "where", "why", "how", "is", "can", "does", "do" , "i" , "?"]
+templateWords = ["Please","refer","Working","template","'"]
 def build_bag_of_words_features_filtered(question):
-    question = question.lower()
+    #question = question.lower()
     token_words = nltk.word_tokenize(question)
-    print(token_words)
-    token_words = [word for word in token_words if not word in useless_words]
-    print(token_words)
-    token_words = [word for word in token_words if not word in start_words]
-    print(token_words)
+    #token_words = [word for word in token_words if not word in useless_words]
+    #token_words = [word for word in token_words if not word in start_words]
+    token_words = [word for word in token_words if not word in templateWords]
     return token_words
 
 #build_bag_of_words_features_filtered(ques[0]))
@@ -106,7 +105,7 @@ def get_url(url):
 
 def get_json_from_url(url):
     content = get_url(url)
-    print("In function get_json_from_url")
+    #print("In function get_json_from_url")
     if content == "None":
         print("content is none")
     else :
@@ -211,7 +210,7 @@ def handle_update(update):
             #build_bag_of_words_features_filtered(text)
             answer = get_QnA_Keyboard(text,chat)
             send_message(answer,chat)
-            #send_document(answer,chat)
+            send_document(answer,chat)
             qNa.setStatus("text",chat)
             #time.sleep(0.5)
             send_message("select /continue to check more FaQ ", chat)
@@ -232,14 +231,20 @@ def send_message(text, chat_id, reply_markup=None):
 def send_document(text, chat_id, reply_markup=None):
     #curl -F chat_id="468247330" -F document=@"C:\Users\shubham\Downloads\sampleDeploy\EnYchatbot\permissionIDs.xlsx" -F caption="Text Message with attachment" https://api.telegram.org/bot544315494:AAGQ7Oj4gKURC54F_6MdFjQoOW-gZgKNMsk/sendDocument
     docName = decodeText2DocName(text)
-    url = URL + "sendDocument?document={}&chat_id={}&parse_mode=Markdown".format("BQADBQADcgAD3v4IVcjXRoL5NXCuAg", chat_id)
-    if reply_markup:
-        url += "&reply_markup={}".format(reply_markup)
-    get_url(url)
-    print(url)
+    if docName != "None":
+        url = URL + "sendDocument?document={}&chat_id={}&parse_mode=Markdown".format(docName, chat_id)
+        if reply_markup:
+            url += "&reply_markup={}".format(reply_markup)
+        get_url(url)
    
 def decodeText2DocName(text):
-    return "Template 1"
+    print(text)
+    docName = "None"
+    if text == ['Please refer Working template 1']:
+        docName = "BQADBQADMAADhSMhVUYk3Ed8BgYqAg"
+    elif text == ['Please refer Working template 2']:
+        docName = "BQADBQADNQADhSMhVTELnFMN3BIDAg"
+    return docName
     
 def main():
     last_update_id = None
