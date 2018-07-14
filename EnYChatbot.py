@@ -91,7 +91,7 @@ def get_QnA_Keyboard(field,chat):
     elif qNa.getStatus(chat) == "answer":
         for each in range(0,11):
             if ques[each] == field:
-                returnList.append(ans[each]) 
+                return (ans[each]) 
                 break
     return returnList
 	
