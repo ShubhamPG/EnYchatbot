@@ -85,11 +85,11 @@ def get_QnA_Keyboard(field,chat):
     global status
     (fieldID,ques,ans) = qNa.readExcel()
     if qNa.getStatus(chat) == "question":
-        for each in range(0,60):
+        for each in range(0,11):
             if fieldID[each] == field:
                 returnList.append(ques[each])
     elif qNa.getStatus(chat) == "answer":
-        for each in range(0,60):
+        for each in range(0,11):
             if ques[each] == field:
                 returnList.append(ans[each]) 
                 break
@@ -155,25 +155,11 @@ def isPermission(chatID):
             
 def handle_update(update):
     listA = [
-"Appointment of business partner",
-"Security deposit",
-"Discontinuance of business partner",
-"Performance evaluation",
-"Dealer appointment",
-"Dealer Registration",
-"Dealer discontinuance", 
-"Retailer appointment",
-"Registration",
-"Sample bags",
-"Registration form",
-"Depot Selection",
-"Performance Assessment",
-"Destination points Destination and Freight",
-"Appointment of Handling agent",
-"Performance Evaluation of Handling agent",
-"Change of handling agent",
-"Stock Transfer Order ( STO )",
-"Physical Verification"
+"Client Requisition",
+"Preliminary estimates (PE)",
+"Administrative approvals and expenditure sanction",
+"Detailed estimates",
+"Technical sanction"
 ]
     try:
         text = update["message"]["text"]
