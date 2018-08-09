@@ -25,7 +25,7 @@ def sendMail(chatID):
      
      
     fromaddr = "faqboteny@gmail.com"
-    toaddr = "faqboteny@gmail.com,chirag_gupta93@yahoo.com"
+    toaddr = "chirag_gupta93@yahoo.com,kal1234shubham@gmail.com"
     msg = MIMEMultipart()
     msg['From'] = fromaddr
     msg['To'] = toaddr
